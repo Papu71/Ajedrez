@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajedrez Pro</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 100%);
+        }
+
+        h1 {
+            margin: 0;
+            margin-bottom: 20px;
+            font-size: 3em;
+            text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.5);
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            width: 90vmin;
+            height: 90vmin;
+            border: 5px solid white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+        }
+
+        .square {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4vmin;
+            transition: background-color 0.3s ease;
+        }
+
+        .black {
+            background-color: #222222;
+            color: white;
+        }
+
+        .red {
+            background-color: #e02a2a;
+            color: black;
+        }
+
+        .piece {
+            cursor: pointer;
+            font-size: 5vmin;
+        }
+
+        #message {
+            position: absolute;
+            top: 10%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.5em;
+            display: none;
+            z-index: 10;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            #board {
+                width: 95vw;
+                height: 95vw;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <h1>♛ Ajedrez 1v1 ♚</h1>
+    <div id="board"></div>
+    <div id="message"></div>
+
+    <script>
+        const board = document.getElementById("board");
+        const messageBox = document.getElementById("message");
+
+        const initialBoard = [
+            ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"], // Negros
+            ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"], // Peones negros
+            ["", "", "", "", "", "", "", ""],           // Casillas vacías
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"], // Peones blancos
+            ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"], // Blancos
+        ];
+
+        let currentBoard = JSON.parse(JSON.stringify(initialBoard));
+        let selectedPiece = null;
+        let selectedSquare = null;
+        let whiteTurn = true; // Booleano para el turno de cada jugador
+
+        function createBoard() {
+            board.innerHTML = "";
+            currentBoard.forEach((row, rowIndex) => {
+                row.forEach((piece, colIndex) => {
+                    const square = document.createElement("div");
+                    square.classList.add("square", (rowIndex + colIndex) % 2 === 0 ? "black" : "red");
+                    square.dataset.row = rowIndex;
+                    square.dataset.col = colIndex;
+
+                    if (piece) {
+                        const pieceElement = document.createElement("div");
+                        pieceElement.textContent = piece;
+                        pieceElement.classList.add("piece");
+                        pieceElement.dataset.row = rowIndex;
+                        pieceElement.dataset.col = colIndex;
+                        square.appendChild(pieceElement);
+
+                        pieceElement.addEventListener("click", () => selectPiece(rowIndex, colIndex));
+                    }
+
+                    square.addEventListener("click", () => movePiece(rowIndex, colIndex));
+                    board.appendChild(square);
+                });
+            });
+        }
+
+        function selectPiece(row, col) {
+            if (selectedPiece) {
+                deselectPiece();
+            }
+
+            selectedPiece = currentBoard[row][col];
+            selectedSquare = { row, col };
+
+            const square = board.querySelector(`[data-row='${row}'][data-col='${col}']`);
+            square.style.outline = "3px solid yellow";
+        }
+
+        function deselectPiece() {
+            const square = board.querySelector(
+                `[data-row='${selectedSquare.row}'][data-col='${selectedSquare.col}']`
+            );
+            if (square) square.style.outline = "none";
+
+            selectedPiece = null;
+            selectedSquare = null;
+        }
+
+        function movePiece(row, col) {
+            if (selectedPiece && selectedSquare) {
+                if (isLegalMove(selectedSquare.row, selectedSquare.col, row, col)) {
+                    currentBoard[row][col] = selectedPiece;
+                    currentBoard[selectedSquare.row][selectedSquare.col] = "";
+                    deselectPiece();
+                    createBoard();
+                    toggleTurn(); // Cambiar el turno después de mover
+                }
+            }
+        }
+
+        function isLegalMove(startRow, startCol, endRow, endCol) {
+            const piece = currentBoard[startRow][startCol];
+            const target = currentBoard[endRow][endCol];
+
+            // Movimiento legal básico: no moverse a la misma casilla
+            if (startRow === endRow && startCol === endCol) return false;
+
+            // Reglas básicas de movimiento para piezas comunes (mejorarlas más adelante)
+            if (piece === "♙" && target === "") {
+                // Peón mueve hacia adelante solo
+                if (endRow === startRow + 1 && startCol === endCol) return true;
+            }
+
+            if (piece === "♖" || piece === "♘" || piece === "♗") {
+                // Torres, Caballos, y Alfiles no deben saltar a lugares ocupados por su propio color
+                if (target && target !== "" && target !== piece) return false;
+                return true;
+            }
+
+            return true;
+        }
+
+        function toggleTurn() {
+            whiteTurn = !whiteTurn; // Cambiar el turno
+            showMessage(`Turno del oponente (${whiteTurn ? "Blanco" : "Negro"})`);
+        }
+
+        function showMessage(text) {
+            messageBox.textContent = text;
+            messageBox.style.display = "block";
+            setTimeout(() => {
+                messageBox.style.display = "none";
+            }, 3000);
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
