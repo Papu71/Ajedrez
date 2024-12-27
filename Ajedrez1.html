@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajedrez 1v1</title>
+    <style>
+        /* CSS integrado */
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            width: 80vmin;
+            height: 80vmin;
+            border: 5px solid white;
+            box-shadow: 0 0 15px white;
+        }
+
+        .square {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3vmin;
+        }
+
+        .dark {
+            background-color: red;
+        }
+
+        .light {
+            background-color: black;
+        }
+
+        .status {
+            position: absolute;
+            top: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .status.check {
+            color: orange;
+        }
+
+        .status.checkmate {
+            color: red;
+        }
+
+        .status.stalemate {
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="status" id="status"></div>
+    <div class="board" id="board"></div>
+    <script>
+        // JavaScript integrado
+
+        const board = document.getElementById('board');
+        const statusDiv = document.getElementById('status');
+
+        const initialBoard = [
+            ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
+            ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+            ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
+        ];
+
+        let currentPlayer = 'white';
+
+        function createBoard() {
+            board.innerHTML = '';
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const square = document.createElement('div');
+                    square.classList.add('square');
+                    square.classList.add((row + col) % 2 === 0 ? 'light' : 'dark');
+                    square.dataset.row = row;
+                    square.dataset.col = col;
+
+                    if (initialBoard[row][col]) {
+                        square.textContent = initialBoard[row][col];
+                        square.dataset.piece = initialBoard[row][col];
+                    }
+
+                    square.addEventListener('click', () => onSquareClick(row, col));
+                    board.appendChild(square);
+                }
+            }
+        }
+
+        let selectedPiece = null;
+
+        function onSquareClick(row, col) {
+            const clickedSquare = board.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+
+            if (selectedPiece) {
+                const isMoveValid = validateMove(selectedPiece, clickedSquare);
+                if (isMoveValid) {
+                    movePiece(selectedPiece, clickedSquare);
+                    checkGameStatus();
+                    currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+                }
+                selectedPiece = null;
+            } else if (clickedSquare.dataset.piece) {
+                selectedPiece = clickedSquare;
+            }
+        }
+
+        function validateMove(fromSquare, toSquare) {
+            // Aquí puedes implementar reglas más específicas para los movimientos.
+            const fromPiece = fromSquare.dataset.piece;
+            const toPiece = toSquare.dataset.piece;
+
+            if (fromPiece && currentPlayer === 'white' && fromPiece.toUpperCase() !== fromPiece) return false;
+            if (fromPiece && currentPlayer === 'black' && fromPiece.toLowerCase() !== fromPiece) return false;
+
+            return true;
+        }
+
+        function movePiece(fromSquare, toSquare) {
+            toSquare.textContent = fromSquare.textContent;
+            toSquare.dataset.piece = fromSquare.dataset.piece;
+            fromSquare.textContent = '';
+            delete fromSquare.dataset.piece;
+        }
+
+        function checkGameStatus() {
+            // Aquí puedes añadir lógica para jaque, jaque mate y rey ahogado.
+            // Simulación básica:
+            const kingExists = Array.from(board.children).some(sq => sq.dataset.piece === '♔' || sq.dataset.piece === '♚');
+            if (!kingExists) {
+                showStatus('¡Jaque Mate!', 'checkmate');
+            }
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
