@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Esther</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Heart (pixel style) */
+        .heart {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(7, 10px);
+            grid-gap: 2px;
+        }
+
+        .heart div {
+            width: 10px;
+            height: 10px;
+            background: red;
+        }
+
+        .heart .empty {
+            background: transparent;
+        }
+
+        /* Flowers */
+        .flower {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            display: grid;
+            grid-template-columns: repeat(5, 8px);
+            grid-gap: 1px;
+            animation: float 3s infinite alternate;
+        }
+
+        .flower div {
+            width: 8px;
+            height: 8px;
+            background: green;
+        }
+
+        .flower .petal {
+            background: pink;
+        }
+
+        .flower .center {
+            background: yellow;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(-10px); }
+            100% { transform: translateY(10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Heart -->
+        <div class="heart">
+            <div class="empty"></div><div class="empty"></div><div></div><div></div><div></div><div class="empty"></div><div class="empty"></div>
+            <div class="empty"></div><div></div><div></div><div></div><div></div><div></div><div class="empty"></div>
+            <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+            <div></div><div></div><div></div><div class="empty"></div><div></div><div></div><div></div>
+            <div class="empty"></div><div></div><div></div><div></div><div></div><div></div><div class="empty"></div>
+            <div class="empty"></div><div class="empty"></div><div></div><div></div><div></div><div class="empty"></div><div class="empty"></div>
+        </div>
+
+        <!-- Flowers -->
+        <div class="flower" style="top: -100px; left: -120px;">
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div><div></div><div class="petal"></div><div class="center"></div><div class="petal"></div>
+            <div class="petal"></div><div class="petal"></div><div></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div><div></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+        </div>
+
+        <div class="flower" style="top: -100px; right: -120px;">
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div><div></div><div class="petal"></div><div class="center"></div><div class="petal"></div>
+            <div class="petal"></div><div class="petal"></div><div></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div><div></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+        </div>
+    </div>
+</body>
+</html>
